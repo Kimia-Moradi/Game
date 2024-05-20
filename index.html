@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .show{
+            width: 400px;
+            height: 400px;
+            box-shadow:  0 0 10px #333;
+            position: absolute;
+            top: -100%;
+            left: 50%;
+            transform: translate(-50% , -50%);
+            z-index: 10;
+            animation: move 2s ease 1;
+            animation-fill-mode: forwards;
+            background-color: #fff;
+            display: none;
+        }
+        .visible{
+            display: block;
+        }
+        @keyframes move {
+            from{
+                top: -100%;
+            }
+            to{
+                top: 50%;
+            }
+
+        }
+
+        #main{
+            width: 100vw;
+            height: 100vh;
+            background-color: #e1e1e1;
+            position: relative;
+        }
+        #box1{
+            position: absolute;
+            width: 100px;
+            height: 100px;
+
+            background-color: purple;
+            color: #FFF;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #box2{
+            width: 120px;
+            height: 120px;
+            background-color: dodgerblue;
+            position: absolute;
+            top: 120px;
+            left: 0;
+
+        }
+        #box1,
+        #box2{
+            color: #FFF;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+        }
+        #heartContainer {
+            color: rgb(141, 0, 0);
+            font-size: 40px;
+            margin: 10px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #timerContainer {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body onload="setPost()" onkeydown="handleKeys(event)">
+ <div class="show"></div>
+  <main id="main">
+      <div id="heartContainer"></div>
+      <div id="box1">(1)</div>
+      <div id="box2">(2)</div>
+      <div id="timerContainer"></div>
+
+  </main>
+    <script>
+        const box1 = document.getElementById("box1")
+        const box2 = document.getElementById("box2")
+        const timerContainer = document.getElementById("timerContainer")
+        const heartContainer = document.getElementById("heartContainer")
+        let heartSymbol = " ❤"
+        let numHearts = 3
+        heartContainer.innerHTML = heartSymbol.repeat(numHearts)
+        let notWin = true
+        let timer = 10
+        function setPost(){
+
+            box1.style.left = Math.abs(Math.floor(Math.random() * window.innerWidth) - parseInt((window.getComputedStyle(box1).width))) + 'px'
+            box1.style.top = Math.abs(Math.floor(Math.random() * window.innerHeight) - parseInt((window.getComputedStyle(box1).height))) + 'px'
+            box2.style.left = Math.abs(Math.floor(Math.random() * window.innerWidth) - parseInt((window.getComputedStyle(box2).width))) + 'px'
+            box2.style.top = Math.abs(Math.floor(Math.random() * window.innerHeight) - parseInt((window.getComputedStyle(box2).height))) + 'px'
+
+          // setTimeout("setPost()",500)
+        }
+
+        /*
+          UP == 38
+          Right == 39
+          Left ==  37
+          Down == 40
+
+        *
+        * */
+        function handleKeys(event){
+
+            switch (event.keyCode || event.which){
+                case 38 : move('up')
+                    break;
+                case 39 : move('right')
+                    break;
+                case 37 : move('left')
+                    break;
+                case 40 : move('down')
+                    break;
+            }
+        }
+
+        function checkWin(){
+            if(numHearts === 0) {
+                return;
+            }
+            if(Math.abs(box2.offsetTop - box1.offsetTop) < 50 && Math.abs(box2.offsetLeft - box1.offsetLeft) < 50){
+
+                document.querySelector('.show').classList.add('visible')
+                notWin = false
+
+            }
+        }
+
+
+        function move(direction){
+            var step = 20 ;
+
+            switch (direction){
+
+                case 'up':
+                    box2.style.top = box2.offsetTop - step + 'px'
+                    if(box2.offsetTop <= 0){
+                        box2.style.top = window.innerHeight - parseInt(window.getComputedStyle(box2).height) + 'px'
+                    }
+                    break;
+                case 'right':
+                    box2.style.left = box2.offsetLeft + step + 'px'
+
+
+
+                    if(box2.offsetLeft + parseInt(window.getComputedStyle(box2).width) >= window.innerWidth){
+                        box2.style.left = '0px'
+                    }
+                    break;
+
+                case 'left':
+                    box2.style.left = box2.offsetLeft - step + 'px'
+                    if(box2.offsetLeft <= 0 ){
+                        box2.style.left = window.innerWidth - parseInt(window.getComputedStyle(box2).width) + 'px'
+                    }
+                    break;
+
+                case 'down':
+                    box2.style.top = box2.offsetTop + step + 'px'
+
+                    if(box2.offsetTop +  parseInt(window.getComputedStyle(box2).height) > window.innerHeight){
+                        box2.style.top = '0px'
+                    }
+                    break;
+
+            }
+
+            checkWin()
+        }
+        function checkHearts() {
+            if (notWin) {
+                numHearts --
+                timer = 10
+                heartContainer.innerHTML = heartSymbol.repeat(numHearts)
+                if (numHearts === 0) {
+                    showGameOver()
+                } else {
+                    setTimeout(checkHearts, 10 * 1000)
+                }
+            }
+        }
+
+        function countDown() {
+            if (notWin &&  numHearts > 0) {
+                timerContainer.innerHTML = timer
+                timer --
+                setTimeout(countDown, 1 * 1000)
+                if (timer === 0) {
+                    timer = 10
+                } 
+            }
+            else {
+                timerContainer.innerHTML = 0
+            }
+        }
+
+        function showGameOver () {
+             alert("Game Over!")
+        }
+
+        setTimeout(checkHearts, 10 * 1000)
+        setTimeout(countDown, 1 * 1000)
+    </script>
+    
+</body>
+</html>
